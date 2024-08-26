@@ -35,7 +35,7 @@ read operator
 #入力されたoperatorが正しいかチェックする
 check_operator "$operator"
 
-echo -n "２つ目の整数を入力してください:"
+echo -n "2つ目の整数を入力してください:"
 read num2
 
 #入力されたnum2が整数かチェックする。
