@@ -1,3 +1,7 @@
+#キーボードから数値1、演算子、数値2を入力して四則演算を行い、結果を表示する。
+#入力チェックを行い、入力エラーの場合は入力を繰り返す。
+#計算結果の表示後に計算ループを続けるかどうかを確認し、"Y"が入力されたときはループを続け、"N"が入力されたときはスクリプトを終了する。
+
 #!/bin/bash -ex
 
 #入力された数値が整数かチェックする。
@@ -85,8 +89,13 @@ function input() {
 	done
 }
 
-#num1、operator、num2を受け取り、計算を行う。
+#num1、operator、num2を引数として受け取り、計算を行う。
 function calculate() {
+	local num1=$1
+	local operator=$2
+	local num2=$3
+	local result
+	local remainder
 	case $operator in
 	+)
 		result=$((num1 + num2))
@@ -109,6 +118,7 @@ function calculate() {
 }
 
 #計算を続けるかどうかを確認する。
+#continue_responseにYが入力されたとき0を、Nが入力されたとき1を戻り値として返す。
 function ask_continue() {
 	while :; do
 		echo -n '計算を続けますか？続ける場合は"Y"、終了する場合は"N"を入力してください:'
@@ -116,15 +126,11 @@ function ask_continue() {
 		check_continue_response "$continue_response"
 		local return_value=$?
 		if [[ $return_value -eq 0 ]]; then
-			case $continue_response in
-			Y)
-				break
-				;;
-			N)
-				echo "スクリプトを終了します。"
-				exit 0
-				;;
-			esac
+			if [[ "$continue_response" = "Y" ]]; then
+				return 0
+			elif [[ "$continue_response" = "N" ]]; then
+				return 1
+			fi
 		else
 			echo "入力が正しくありません。もう一度入力してください。"
 		fi
@@ -132,8 +138,13 @@ function ask_continue() {
 }
 
 #メイン処理
-while :; do
+#ask_continueの戻り値が0の場合は計算を繰り返し、1の場合はスクリプトを終了する。
+continue_program=0
+while [ "$continue_program" -eq 0 ]; do
 	input
-	calculate
+	calculate "$num1" "$operator" "$num2"
 	ask_continue
+	continue_program=$?
 done
+echo "スクリプトを終了します。"
+exit 0
