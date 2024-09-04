@@ -27,14 +27,14 @@ function accept_user_input(){
 	echo "$user_input"
 }
 
-#ファイルへ出力する1行を成形する。
-function shape_output_line(){
+#ファイルへ出力する1行を整形する。
+function format_output_line(){
 	local user_input=$1
 	local current_datetime=$(date "+%Y-%m-%d %H:%M:%S.%3N")
 	echo -en "${current_datetime}\t${user_input}\n"
 }
 
-#成形した1行をtsvファイルへ出力する。
+#整形した1行をtsvファイルへ出力する。
 function write_file() {
 	local file_name=$1
 	local output_line=$2
@@ -75,20 +75,20 @@ function confirm_if_continue() {
 #メイン処理
 #ask_continueの戻り値がTRUEの場合は計算を繰り返し、FALSEの場合はスクリプトを終了する。
 file_name=$(generate_file_name)
-isContinue=$TRUE
-while [ "$isContinue" = $TRUE ]; do
+is_continue=$TRUE
+while [ "$is_continue" = $TRUE ]; do
 	#入力を受け付ける
 	user_input=$(accept_user_input)
 
-	#ファイルへ出力する1行を成形する
-	output_line=$(shape_output_line "$user_input")
+	#ファイルへ出力する1行を整形する
+	output_line=$(format_output_line "$user_input")
 
 	#ファイルへ出力する
 	write_file "$file_name" "$output_line"
 
 	#入力を続けるかどうか確認する。
 	confirm_if_continue
-	isContinue=$?
+	is_continue=$?
 done
 echo "スクリプトを終了します。"
 exit 0
