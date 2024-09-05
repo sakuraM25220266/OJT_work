@@ -8,55 +8,63 @@
 #1行ファイル出力後に処理を続けるかどうかの確認を行い、終了するまでループする。
 #---------------------------------------------------------------------
 
-#ファイルを作成する。
-function make_file() {
+readonly TRUE=0
+readonly FALSE=1
+
+#ファイル名を作成する。
+function generate_file_name() {
 	local datetime=$(date "+%Y%m%d_%H%M%S")
 	local file_name="output_${datetime}.tsv"
 	echo "$file_name"
 }
 
 #ユーザーから文字列の入力を受け付ける。
-function get_text(){
-	echo -n "文字列を入力してください:"
+#リダイレクトを行わないと、「文字列を入力してください:」がファイルに出力されるため、標準出力エラーを利用している。
+#「1>&2」:標準出力(1)の出力先を標準エラー出力(2)と同じところに設定する。
+function accept_user_input(){
+	echo -n "文字列を入力してください:" 1>&2
 	read user_input
+	echo "$user_input"
 }
 
-#文字列と一緒にファイルに出力される現在日時を取得する。
-function get_current_datetime(){
-	current_datetime=$(date "+%Y-%m-%d %H:%M:%S.%3N")
+#ファイルへ出力する1行を整形する。
+function format_output_line(){
+	local user_input=$1
+	local current_datetime=$(date "+%Y-%m-%d %H:%M:%S.%3N")
+	echo -en "${current_datetime}\t${user_input}\n"
 }
 
-#日時と文字列をtsvファイルへ出力する。
-function write() {
+#整形した1行をtsvファイルへ出力する。
+function write_file() {
 	local file_name=$1
-	local datetime=$2
-	local user_input=$3
-	echo -en "${current_datetime}\t${user_input}\\n" >> "$file_name"
+	local output_line=$2
+	echo "$output_line" >> "$file_name"
+	echo "ファイルへ書き込みました。"
 }
 
 #ユーザーの回答が"Y"または"N"であるかをチェックする。
-#入力が正しければ0を、正しくなければ1を戻り値として返す。
-function check_continue_response() {
-	local continue_response=$1
-	if [[ ! "$continue_response" =~ ^[YN]$ ]]; then
-		return 1
+#入力が正しければTRUEを、正しくなければFALSEを戻り値として返す。
+function check_user_response() {
+	local user_response=$1
+	if [[ ! "$user_response" =~ ^[YN]$ ]]; then
+		return $FALSE
 	fi
-	return 0
+	return $TRUE
 }
 
 #入力を続けるかどうか確認する。
-#continue_responseにYが入力されたとき0を、Nが入力されたとき1を戻り値として返す。
-function ask_continue() {
+#user_responseにYが入力されたときTRUEを、Nが入力されたときFALSEを戻り値として返す。
+function confirm_if_continue() {
 	while :; do
 		echo -n '入力を続けますか？続ける場合は"Y"、終了する場合は"N"を入力してください:'
-		read continue_response
-		check_continue_response "$continue_response"
+		read user_response
+		check_user_response "$user_response"
 		local return_value=$?
-		if [[ $return_value -eq 0 ]]; then
-			if [[ "$continue_response" = "Y" ]]; then
-				return 0
-			elif [[ "$continue_response" = "N" ]]; then
-				return 1
+		if [[ $return_value = $TRUE ]]; then
+			if [[ "$user_response" = "Y" ]]; then
+				return $TRUE
+			elif [[ "$user_response" = "N" ]]; then
+				return $FALSE
 			fi
 		else
 			echo "入力が正しくありません。もう一度入力してください。"
@@ -65,16 +73,22 @@ function ask_continue() {
 }
 
 #メイン処理
-#ask_continueの戻り値が0の場合は計算を繰り返し、1の場合はスクリプトを終了する。
-file_name=$(make_file)
-continue_program=0
-while [ "$continue_program" -eq 0 ]; do
-	get_text
-	get_current_datetime
-	write "$file_name" "$current_datetime" "$user_input"
-	echo "ファイルへ書き込みました。"
-	ask_continue
-	continue_program=$?
+#ask_continueの戻り値がTRUEの場合は計算を繰り返し、FALSEの場合はスクリプトを終了する。
+file_name=$(generate_file_name)
+is_continue=$TRUE
+while [ "$is_continue" = $TRUE ]; do
+	#入力を受け付ける
+	user_input=$(accept_user_input)
+
+	#ファイルへ出力する1行を整形する
+	output_line=$(format_output_line "$user_input")
+
+	#ファイルへ出力する
+	write_file "$file_name" "$output_line"
+
+	#入力を続けるかどうか確認する。
+	confirm_if_continue
+	is_continue=$?
 done
 echo "スクリプトを終了します。"
 exit 0
