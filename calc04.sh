@@ -10,33 +10,32 @@ readonly TRUE=0
 readonly FALSE=1
 
 # 検索したい文字列の入力を受け付ける
-function accept_user_input() {
-    local user_input
-    read -p "検索対象のテキスト: " user_input
-    echo "$user_input"
+function input_serch_text() {
+    local serch_text
+    read -p "検索対象のテキスト: " serch_text
+    echo "$serch_text"
 }
 
 # メイン処理
 # 引数で受け取った検索対象のファイル名を変数に代入する
-file="$1"
+file_name="$1"
 
 # 検索したい文字列の入力を受け付ける
-user_input=$(accept_user_input)
+serch_text=$(input_serch_text)
 
 # 検索結果を格納するためのフラグ
 is_found=$FALSE
 
-# 行番号をカウントするための変数
 line_number=0
 
 # ファイルを1行ずつ読み込んで検索を行う
-while read -r line; do
+while read line; do
     line_number=$((line_number + 1))
-    if [[ "$line" == *"$user_input"* ]]; then
+    if [[ "$line" == *"$serch_text"* ]]; then
         echo -e "$line_number" "行目\t" "$line"
         is_found=$TRUE
     fi
-done < "$file"
+done < "$file_name"
 
 # 結果が見つからなかった場合はexit1でスクリプトを終了し、見つかった場合はexit0で終了する。
 if [ $is_found = $FALSE ]; then
