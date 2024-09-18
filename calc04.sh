@@ -24,11 +24,7 @@ file="$1"
 user_input=$(accept_user_input)
 
 # 検索結果を格納するためのフラグ
-<<<<<<< HEAD
 is_found=$FALSE
-=======
-isFound=$FALSE
->>>>>>> aced6fbe492806bce824b80571bf0be36962519e
 
 # 行番号をカウントするための変数
 line_number=0
@@ -38,20 +34,12 @@ while read -r line; do
     line_number=$((line_number + 1))
     if [[ "$line" == *"$user_input"* ]]; then
         echo -e "$line_number" "行目\t" "$line"
-<<<<<<< HEAD
         is_found=$TRUE
-=======
-        isFound=$TRUE
->>>>>>> aced6fbe492806bce824b80571bf0be36962519e
     fi
 done < "$file"
 
 # 結果が見つからなかった場合はexit1でスクリプトを終了し、見つかった場合はexit0で終了する。
-<<<<<<< HEAD
 if [ $is_found = $FALSE ]; then
-=======
-if [ $isFound = $FALSE ]; then
->>>>>>> aced6fbe492806bce824b80571bf0be36962519e
     echo "条件に一致する行がありませんでした。"
     exit 1
 else
