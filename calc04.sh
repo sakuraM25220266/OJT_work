@@ -10,10 +10,10 @@ readonly TRUE=0
 readonly FALSE=1
 
 # 検索したい文字列の入力を受け付ける
-function input_serch_text() {
-    local serch_text
-    read -p "検索対象のテキスト: " serch_text
-    echo "$serch_text"
+function input_search_text() {
+    local search_text
+    read -p "検索対象のテキスト: " search_text
+    echo "$search_text"
 }
 
 # メイン処理
@@ -21,7 +21,7 @@ function input_serch_text() {
 file_name="$1"
 
 # 検索したい文字列の入力を受け付ける
-serch_text=$(input_serch_text)
+search_text=$(input_search_text)
 
 # 検索結果を格納するためのフラグ
 is_found=$FALSE
@@ -31,7 +31,7 @@ line_number=0
 # ファイルを1行ずつ読み込んで検索を行う
 while read line; do
     line_number=$((line_number + 1))
-    if [[ "$line" == *"$serch_text"* ]]; then
+    if [[ "$line" == *"$search_text"* ]]; then
         echo -e "$line_number" "行目\t" "$line"
         is_found=$TRUE
     fi
