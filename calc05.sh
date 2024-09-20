@@ -29,15 +29,15 @@ is_found=$FALSE
 # ファイルを1行ずつ読み込んで検索を行う
 for file_name in "${file_name_array[@]}"; do
     line_number=0
-    #ファイル内に検索対象の文字列が見つかったかどうかを示すためのフラグ
-    has_matches=$FALSE
+    #ファイル名が表示済みかどうか示すフラグ
+    is_displayed=$FALSE
     while read line; do
         line_number=$((line_number + 1))
         if [[ "$line" == *"$search_text"* ]]; then
-            #検索対象の文字列が見つかった場合にファイル名を表示する
-            if [ $has_matches = $FALSE ]; then
+            #検索対象の文字列が見つかり、ファイル名が一度も表示されていない時、ファイル名を表示する。
+            if [ $is_displayed = $FALSE ]; then
                 echo "ファイル名：""$file_name"
-                has_matches=$TRUE
+                is_displayed=$TRUE
             fi
             echo -e "$line_number行目\t$line"
             is_found=$TRUE
